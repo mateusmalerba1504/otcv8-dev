@@ -17,6 +17,15 @@ jobs:
       uses: microsoft/setup-msbuild@v2
       id: setup_msbuild
 
+    - name: Pre-download 7zip for vcpkg (original URL is gone)
+      shell: pwsh
+      run: |
+        $dl = Join-Path $env:RUNNER_TEMP "vcpkg-dl"
+        New-Item -ItemType Directory -Force -Path $dl | Out-Null
+        Invoke-WebRequest -Uri "https://web.archive.org/web/2022id_/https://www.7-zip.org/a/7z2107-extra.7z" -OutFile (Join-Path $dl "7z2107-extra.7z")
+        Get-Item (Join-Path $dl "7z2107-extra.7z") | Format-List Name,Length
+        "VCPKG_DOWNLOADS=$dl" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
     - name: Run vcpkg
       uses: lukka/run-vcpkg@v7
       with:
